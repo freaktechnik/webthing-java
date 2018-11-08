@@ -4,8 +4,11 @@
 package org.mozilla.iot.webthing;
 
 import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.time.Instant;
+import java.util.Enumeration;
 
 public class Utils {
     /**
@@ -15,10 +18,27 @@ public class Utils {
      */
     public static String getIP() {
         try {
-            return Inet4Address.getLocalHost().getHostAddress();
+            final InetAddress address = Inet4Address.getLocalHost();
+            if (isValidAddress(address)) {
+                return address.getHostAddress();
+            }
         } catch (UnknownHostException e) {
-            return null;
+            // fall through
         }
+        final Enumeration interfaces = NetworkInterface.getNetworkInterfaces();
+        while (interfaces.hasMoreElements()) {
+            final NetworkInterface iface =
+                    (NetworkInterface)interfaces.nextElement();
+            final Enumeration addresses = iface.getInetAddresses();
+            while (addresses.hasMoreElements()) {
+                final InetAddress address = (InetAddress)addresses.nextElement();
+                if (!isValidAddress(address)) {
+                    continue;
+                }
+                return address.getHostAddress();
+            }
+        }
+        return null;
     }
 
     /**
@@ -29,5 +49,9 @@ public class Utils {
     public static String timestamp() {
         String now = Instant.now().toString().split("\\.")[0];
         return now + "+00:00";
+    }
+
+    private static boolean isValidAddress(InetAddress address) {
+        return !address.isLoopbackAddress() && !address.isMulticastAddress();
     }
 }
