@@ -74,7 +74,7 @@ public class Utils {
      * @return IPv6 address in square brackets, IPv4 address just as IP string.
      */
     private static String formatAddress(InetAddress address) {
-        String hostname = address.getHostAddress();
+        final String hostname = address.getHostAddress();
         if (hostname.contains(":")) {
             return "[" + hostname + "]";
         }
