@@ -7,6 +7,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
+import java.net.SocketException;
 import java.time.Instant;
 import java.util.Enumeration;
 
@@ -25,18 +26,22 @@ public class Utils {
         } catch (UnknownHostException e) {
             // fall through
         }
-        final Enumeration interfaces = NetworkInterface.getNetworkInterfaces();
-        while (interfaces.hasMoreElements()) {
-            final NetworkInterface iface =
-                    (NetworkInterface)interfaces.nextElement();
-            final Enumeration addresses = iface.getInetAddresses();
-            while (addresses.hasMoreElements()) {
-                final InetAddress address = (InetAddress)addresses.nextElement();
-                if (!isValidAddress(address)) {
-                    continue;
+        try {
+            final Enumeration interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                final NetworkInterface iface =
+                        (NetworkInterface)interfaces.nextElement();
+                final Enumeration addresses = iface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    final InetAddress address = (InetAddress)addresses.nextElement();
+                    if (!isValidAddress(address)) {
+                        continue;
+                    }
+                    return address.getHostAddress();
                 }
-                return address.getHostAddress();
             }
+        } catch (SocketException e) {
+            // return null
         }
         return null;
     }
