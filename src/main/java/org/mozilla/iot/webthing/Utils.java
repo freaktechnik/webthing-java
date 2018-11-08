@@ -57,6 +57,6 @@ public class Utils {
     }
 
     private static boolean isValidAddress(InetAddress address) {
-        return !address.isLoopbackAddress() && !address.isMulticastAddress() && address.getHostAddress().indexOf("%") == 0;
+        return !address.isLoopbackAddress() && !address.isMulticastAddress() && !address.getHostAddress().contains("%");
     }
 }
