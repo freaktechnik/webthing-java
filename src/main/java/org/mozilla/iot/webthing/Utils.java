@@ -21,7 +21,7 @@ public class Utils {
         try {
             final InetAddress address = Inet4Address.getLocalHost();
             if (isValidAddress(address)) {
-                return address.getHostAddress();
+                return formatAddress(address);
             }
         } catch (UnknownHostException e) {
             // fall through
@@ -37,7 +37,7 @@ public class Utils {
                     if (!isValidAddress(address)) {
                         continue;
                     }
-                    return address.getHostAddress();
+                    return formatAddress(address);
                 }
             }
         } catch (SocketException e) {
@@ -56,7 +56,28 @@ public class Utils {
         return now + "+00:00";
     }
 
+    /**
+     * Ensures the address is not a local loopback or multicast address and has
+     * no IPv6 scope.
+     *
+     * @param address Address to check.
+     * @return True if the address is not a loopback, multicast or IPv6 with scope address.
+     */
     private static boolean isValidAddress(InetAddress address) {
         return !address.isLoopbackAddress() && !address.isMulticastAddress() && !address.getHostAddress().contains("%");
+    }
+
+    /**
+     * Format the address for consumption by browsers.
+     *
+     * @param address
+     * @return IPv6 address in square brackets, IPv4 address just as IP string.
+     */
+    private static String formatAddress(InetAddress address) {
+        String hostname = address.getHostAddress();
+        if (hostname.contains(":")) {
+            return "[" + hostname + "]";
+        }
+        return hostname;
     }
 }
